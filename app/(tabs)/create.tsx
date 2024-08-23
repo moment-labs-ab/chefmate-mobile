@@ -12,17 +12,21 @@ import {
 
 import FormField from "@/components/FormField";
 import CustomButton from "@/components/CustomButtom";
-import { createRecipe, insertOrUpdateUser } from "@/lib/database";
+import { useGlobalContext } from "@/context/Context";
+import { createRecipe } from "@/lib/recipe-service";
 
 const Create = () => {
-  const [uploading, setUploading] = useState(false);
+    const {user} = useGlobalContext();
+
+    const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState({
     name: "",
     creator: "",
-    pictures: [],
+    //pictures: [],
+    description: "",
     ingredients: "",
-    instructions: "",
-    additionalTips: "",
+    //instructions: "",
+    //additionalTips: "",
     //category:""
     //difficulty: "",
     //prepTime: "",
@@ -40,42 +44,13 @@ const Create = () => {
     //comments
   });
 
-  /*const openPicker = async (selectType) => {
-    const result = await DocumentPicker.getDocumentAsync({
-      type:
-        selectType === "image"
-          ? ["image/png", "image/jpg"]
-          : ["video/mp4", "video/gif"],
-    });
-
-    if (!result.canceled) {
-      if (selectType === "image") {
-        setForm({
-          ...form,
-          thumbnail: result.assets[0],
-        });
-      }
-
-      if (selectType === "video") {
-        setForm({
-          ...form,
-          video: result.assets[0],
-        });
-      }
-    } else {
-      setTimeout(() => {
-        Alert.alert("Document picked", JSON.stringify(result, null, 2));
-      }, 100);
-    }
-  };*/
-
   const submit = async () => {
-    form.creator = "f7557303-a8a1-4cdd-b31b-74848b45bead";
+    form.creator = user?.userId!;
     
     if (
-      (form.ingredients === "") ||
-      (form.instructions === "") ||
-      (form.additionalTips === "")
+      (form.name === "") ||
+      (form.description === "") ||
+      (form.ingredients === "")
     ) {
       return Alert.alert("Please provide all fields");
     }
@@ -83,11 +58,10 @@ const Create = () => {
     setUploading(true);
     try {
         await createRecipe(
+            form.name,
             form.creator,
-            form.pictures,
-            form.ingredients,
-            form.instructions,
-            form.additionalTips
+            form.description,
+            form.ingredients
         );
         Alert.alert("Success", "Post uploaded successfully");
         router.push("/home");
@@ -97,10 +71,8 @@ const Create = () => {
       setForm({
         name: form.name,
         creator: "",
-        pictures: [],
+        description: "",
         ingredients: "",
-        instructions: "",
-        additionalTips: "",
       });
 
       setUploading(false);
@@ -149,26 +121,18 @@ const Create = () => {
         </View>*/}
 
         <FormField
+          title="Description"
+          value={form.description}
+          placeholder="A quick synapses"
+          handleChangeText={(e) => setForm({ ...form, description: e })}
+          otherStyles="mt-7"
+        />
+
+        <FormField
           title="Ingredients"
           value={form.ingredients}
-          placeholder="The essential items of your recipe..."
+          placeholder="The essentials of your recipe"
           handleChangeText={(e) => setForm({ ...form, ingredients: e })}
-          otherStyles="mt-7"
-        />
-
-        <FormField
-          title="Instuctions"
-          value={form.instructions}
-          placeholder="How are people going to create this recipes..."
-          handleChangeText={(e) => setForm({ ...form, instructions: e })}
-          otherStyles="mt-7"
-        />
-
-        <FormField
-          title="Additional Tips"
-          value={form.additionalTips}
-          placeholder="What else should people know..."
-          handleChangeText={(e) => setForm({ ...form, additionalTips: e })}
           otherStyles="mt-7"
         />
 

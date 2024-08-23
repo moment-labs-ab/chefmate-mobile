@@ -6,18 +6,18 @@ import SearchInput from '@/components/SearchInput'
 import Trending from '@/components/Trending'
 import CustomButton from '@/components/CustomButtom'
 import useDatabase from '@/lib/useDatabase'
-import { RecipeModel } from '@/models/recipeModels'
+import { Recipe } from '@/models/recipeModels'
 import { getRecipesByUser } from '@/lib/recipe-service'
 import { useGlobalContext } from '@/context/Context'
 
 const Home = () => {
     const { user, isLoading } = useGlobalContext();
-    const [data, setData] = useState<RecipeModel | null>(null);
+    const [data, setData] = useState<Recipe | null>(null);
 
     useEffect(() => {
         const loadData = async () => {
-            //const recipes = await getRecipesByUser("f7557303-a8a1-4cdd-b31b-74848b45bead");
-            //setData(recipes);
+            const recipes = await getRecipesByUser(user?.userId!);
+            setData(recipes);
         };
 
         loadData();
@@ -33,8 +33,8 @@ const Home = () => {
     else {
         return ( 
             <SafeAreaView>
-                <Text>{user?.email}</Text>
-                <Text>{data?.additionalTips}</Text>
+                <Text>Welcome to the Kitchen {user?.email}</Text>
+                <Text>Recipe: {data?.name}</Text>
                 <Text>Home</Text>
                 <Text>Home</Text>
                 <Text>Home</Text>

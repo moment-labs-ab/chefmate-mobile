@@ -1,4 +1,3 @@
-import { RecipeModel } from "@/models/recipeModels";
 import { createClient } from "@supabase/supabase-js";
 import { Alert, AppState } from "react-native";
 
@@ -19,6 +18,8 @@ export const client = createClient(supabaseUrl, supabaseKey, {
 // `SIGNED_OUT` event if the user's session is terminated. This should
 // only be registered once.
 AppState.addEventListener('change', (state) => {
+    console.log('AppState has changed', state)
+    
     if (state === 'active') {
         client.auth.startAutoRefresh()
     } else {
