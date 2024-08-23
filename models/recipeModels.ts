@@ -1,6 +1,7 @@
-export type RecipeModel = {
+export type Recipe = {
+    id: string,
+    name: string,
     creator: string,
+    description: string,
     ingredients: string,
-    instructions: string,
-    additionalTips: string
 }
