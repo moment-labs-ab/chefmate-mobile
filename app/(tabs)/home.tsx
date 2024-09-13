@@ -37,7 +37,7 @@ const Home = () => {
         };
 
         loadData();
-    }, [user?.userId]); 
+    }, [user?.id]); 
     
     if(isLoading){
         return (
