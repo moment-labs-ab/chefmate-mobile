@@ -71,34 +71,48 @@ export async function getCurrentUser() {
     
     if (data && data.user?.id != undefined) {
         let dbUser = await getDatabaseUser(data.user.id);
-        
-        let user : User = {
-            email: data.user?.email,
-            username: "dbUser.username",
-            userId: data.user?.id
-        }
-        console.log(user);
-        return user;
+
+        console.log(dbUser);
+        return dbUser;
     }
 
     return null;
 }
 
-export async function getDatabaseUser(userId: string) {
+export const getDatabaseUser = async (currentUser: string) : Promise<User | null> => {
     try {
         const { data, error } = await client
             .from("user")
-            .select();
+            .select()
+            .eq("id", currentUser)
+        
 
-        if(!error) {
-            console.log(`User ${userId} retreived successfully`, data);
-            return data;
-        }
-        else {
-            console.error(`Error retreiving user: ${userId}`, error);
-        }
+            if (error) {
+                console.error(`Error retrieving user: ${currentUser}`, error);
+            }
+            
+            if (data) {
+                // Data from supabase comes back as a list of objectl
+                let recipe: User = {
+                    id: data[0].id,
+                    username: data[0].username,
+                    firstName: data[0].first_name,
+                    lastName: data[0].last_name,
+                    email: data[0].email,
+                    timeCreated: data[0].time_created,
+                    timeUpdated: data[0].time_updated,
+                    avatar: data[0].avatar
+                };
+    
+                return recipe;
+            }
+    
+            // Do something else for when no recipes for current user
+            throw new Error("No data found");
     } catch (error) {
         console.error(error);
         Alert.alert("Error", "An error occurred. Please try again.");
+
+        return null;
     }
 }

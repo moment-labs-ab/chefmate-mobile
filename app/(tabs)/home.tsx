@@ -10,10 +10,12 @@ import { Recipe } from '@/models/recipeModels'
 import { getAllRecipes, getRecipesByUser } from '@/lib/recipe-service'
 import { useGlobalContext } from '@/context/Context'
 import handleAsyncDbFunction from '@/lib/database-service'
+import { User } from '@/models/user'
 
 const Home = () => {
     const { user, isLoading } = useGlobalContext();
 
+    const [userData, setUserData] = useState<User | null>(null);
     const [data, setData] = useState<Recipe[] | null>(null);
 
     const { data: posts, refetch } = handleAsyncDbFunction(getAllRecipes);
@@ -30,6 +32,8 @@ const Home = () => {
             //const recipes = await getRecipesByUser(user?.userId!);
             const recipes = await getAllRecipes();
             setData(recipes);
+
+            setUserData(user);
         };
 
         loadData();
@@ -71,7 +75,7 @@ const Home = () => {
                                         Welcome Back
                                     </Text>
                                     <Text className="text-2xl font-psemibold text-white">
-                                        Anshul
+                                        {userData?.username}
                                     </Text>
                                 </View>
 
