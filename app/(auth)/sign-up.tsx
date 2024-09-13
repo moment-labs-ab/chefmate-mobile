@@ -9,9 +9,10 @@ import { createUserWithEmail } from '@/lib/auth-service'
 
 const SignUp = () => {
     const [form, setForm] = useState({
+        username: '',
         email: '',
         password: ''
-    })
+    });
 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -24,9 +25,7 @@ const SignUp = () => {
         setIsSubmitting(true);
 
         try {
-            const result = await createUserWithEmail(form.email, form.password);
-            //setUser(result);
-            //setIsLogged(true); 
+            const result = await createUserWithEmail(form.username, form.email, form.password);
 
             router.replace('/home')
         } catch (error: any) {
@@ -52,12 +51,12 @@ const SignUp = () => {
                         Sign up to ChefMate
                     </Text>
 
-                    {/*<FormField
+                    <FormField
                         title="Username"
                         value={form.username}
-                        handleChangeText={() => {}}
-                        otherStyles="mt-10"
-                    />*/}
+                        handleChangeText={(e) => setForm({...form, password: e})}
+                        otherStyles="mt-7"
+                    />
 
                     <FormField
                         title="Email"

@@ -16,7 +16,7 @@ export async function signInUser(email: string, password: string) {
     }
 }
 
-export async function createUserWithEmail(email: string, password: string) {
+export async function createUserWithEmail(username: string, email: string, password: string) {
     try {
         const { data, error } = await client.auth.signUp({
             email: email,
@@ -24,7 +24,7 @@ export async function createUserWithEmail(email: string, password: string) {
         });
 
         if (data.user) {
-            await insertOrUpdateUser(data.user.id, email);
+            await createUser(data.user.id, email, username);
         }
 
         console.log(data, error);
@@ -34,25 +34,24 @@ export async function createUserWithEmail(email: string, password: string) {
     }
 }
 
-async function insertOrUpdateUser(
+async function createUser(
     userId: string, 
     email: string,
-    username?: string, 
-    firstName?: string, 
-    lastName?: string) {
+    username: string) {
     try {
         const { data, error } = await client
             .from("user")
-            .upsert({
+            .insert({
                 id: userId, 
                 username: username,
                 email: email,
-                first_name: firstName,
-                last_name: lastName
             });
 
         if(!error) {
             console.log("User inserted/updated successfully", data);
+
+            let user = await getDatabaseUser(userId);
+            return user;
         }
         else {
             console.error("Error inserting/updating user", error);
@@ -71,9 +70,11 @@ export async function getCurrentUser() {
     } 
     
     if (data && data.user?.id != undefined) {
+        let dbUser = await getDatabaseUser(data.user.id);
+        
         let user : User = {
             email: data.user?.email,
-            username: '',
+            username: "dbUser.username",
             userId: data.user?.id
         }
         console.log(user);
@@ -81,4 +82,23 @@ export async function getCurrentUser() {
     }
 
     return null;
+}
+
+export async function getDatabaseUser(userId: string) {
+    try {
+        const { data, error } = await client
+            .from("user")
+            .select();
+
+        if(!error) {
+            console.log(`User ${userId} retreived successfully`, data);
+            return data;
+        }
+        else {
+            console.error(`Error retreiving user: ${userId}`, error);
+        }
+    } catch (error) {
+        console.error(error);
+        Alert.alert("Error", "An error occurred. Please try again.");
+    }
 }
