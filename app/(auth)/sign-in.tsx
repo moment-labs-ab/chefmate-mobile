@@ -34,7 +34,7 @@ const SignIn = () => {
             setUser(result);
             setIsLoggedIn(true);
 
-            Alert.alert("Success", "Logged in successfully");
+            //Alert.alert("Success", "Logged in successfully");
 
             router.replace("/home");
           } else {
@@ -44,8 +44,10 @@ const SignIn = () => {
             );
           }
         }
+        else{
+            Alert.alert("Sign In Error", "Incorrect email or password");
+        }
 
-        Alert.alert("Sign In Error", "Incorrect email or password");
       } catch (error: any) {
         Alert.alert("Error", error.message);
       } finally {

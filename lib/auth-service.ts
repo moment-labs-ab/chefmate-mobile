@@ -38,21 +38,26 @@ export async function signOutUser() {
     }
 }
 
-export async function createUserWithEmail(username: string, email: string, password: string) {
+export async function createUserWithEmail(username: string, email: string, password: string): Promise<boolean> {
     try {
         const { data, error } = await client.auth.signUp({
             email: email,
             password: password,
         });
 
-        if (data.user) {
-            await createUser(data.user.id, email, username);
+        if (error) {
+            return false;
         }
 
-        console.log(data, error);
+        if (data.user) {
+            await createUser(data.user.id, email, username);
+            return true;
+        }
+        return false;
     } catch (error) {
         console.error(error);
         Alert.alert("Error", "An error occurred. Please try again.");
+        return false;
     }
 }
 

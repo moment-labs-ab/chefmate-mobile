@@ -5,9 +5,12 @@ import React, { useState } from 'react'
 import { Link, router } from 'expo-router'
 import FormField from '@/components/FormField'
 import CustomButton from '@/components/CustomButtom'
-import { createUserWithEmail } from '@/lib/auth-service'
+import { createUserWithEmail, getCurrentUser } from '@/lib/auth-service'
+import { useGlobalContext } from '@/context/Context'
 
 const SignUp = () => {
+    const { setUser, setIsLoggedIn } = useGlobalContext();
+    
     const [form, setForm] = useState({
         username: '',
         email: '',
@@ -25,9 +28,19 @@ const SignUp = () => {
         setIsSubmitting(true);
 
         try {
-            const result = await createUserWithEmail(form.username, form.email, form.password);
+            const authResult = await createUserWithEmail(form.username, form.email, form.password);
 
-            router.replace('/home')
+            if (authResult) {
+            const result = await getCurrentUser();
+
+                if (result) {
+                    setUser(result);
+                    setIsLoggedIn(true);
+                    
+                    router.replace('/home')
+                }
+            }
+            
         } catch (error: any) {
             Alert.alert('Error', error.message);
         }
@@ -54,7 +67,7 @@ const SignUp = () => {
                     <FormField
                         title="Username"
                         value={form.username}
-                        handleChangeText={(e) => setForm({...form, password: e})}
+                        handleChangeText={(e) => setForm({...form, username: e})}
                         otherStyles="mt-7"
                     />
 
