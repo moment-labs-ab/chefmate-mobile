@@ -1,4 +1,4 @@
-import { View, Text, FlatList, Image, RefreshControl, Alert } from 'react-native'
+import { View, Text, FlatList, Image, RefreshControl, Alert, ListRenderItemInfo } from 'react-native'
 import {useState, useEffect} from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import RecipeCard from '@/components/RecipeCard'
@@ -7,21 +7,37 @@ import Trending from '@/components/Trending'
 import CustomButton from '@/components/CustomButtom'
 import useDatabase from '@/lib/useDatabase'
 import { Recipe } from '@/models/recipeModels'
-import { getRecipesByUser } from '@/lib/recipe-service'
+import { getAllRecipes, getRecipesByUser } from '@/lib/recipe-service'
 import { useGlobalContext } from '@/context/Context'
+import handleAsyncDbFunction from '@/lib/database-service'
+import { User } from '@/models/user'
 
 const Home = () => {
     const { user, isLoading } = useGlobalContext();
-    const [data, setData] = useState<Recipe | null>(null);
+
+    const [userData, setUserData] = useState<User | null>(null);
+    const [data, setData] = useState<Recipe[] | null>(null);
+
+    const { data: posts, refetch } = handleAsyncDbFunction(getAllRecipes);
+    const [refreshing, setRefreshing] = useState(false);
+
+    const onRefresh = async () => {
+      setRefreshing(true);
+      await refetch();
+      setRefreshing(false);
+    };
 
     useEffect(() => {
         const loadData = async () => {
-            const recipes = await getRecipesByUser(user?.userId!);
+            //const recipes = await getRecipesByUser(user?.userId!);
+            const recipes = await getAllRecipes();
             setData(recipes);
+
+            setUserData(user);
         };
 
         loadData();
-    }, [user?.userId]); 
+    }, [user?.id]); 
     
     if(isLoading){
         return (
@@ -32,20 +48,24 @@ const Home = () => {
     }
     else {
         return ( 
-            <SafeAreaView>
-                <Text>Welcome to the Kitchen {user?.email}</Text>
-                <Text>Recipe: {data?.name}</Text>
-                <Text>Home</Text>
-                <Text>Home</Text>
-                <Text>Home</Text>
-                <Text>Home</Text>
-            </SafeAreaView>
-            /*<SafeAreaView className="bg-primary h-full">
+            <SafeAreaView className="bg-primary h-full">
                 <FlatList
-                    data={null}
-                    keyExtractor={(item) => item.$id}
-                    renderItem={({item}) => (
-                        <RecipeCard recipe={item}/>
+                    data={data}
+                    keyExtractor={(item) => item.id}
+                    renderItem={({ item }: ListRenderItemInfo<Recipe>) => (
+                        <RecipeCard
+                            recipe={
+                                {   name: item.name, 
+                                    creator: {
+                                        username: 
+                                        item.creator, 
+                                        avatar: ''
+                                    }, 
+                                    description: item.description, 
+                                    thumbnail: ''
+                                }
+                            }
+                            />
                     )}
                     ListHeaderComponent={() => (
                         <View className="my-6 px-4 spacy-y-6">
@@ -55,7 +75,7 @@ const Home = () => {
                                         Welcome Back
                                     </Text>
                                     <Text className="text-2xl font-psemibold text-white">
-                                        Anshul
+                                        {userData?.username}
                                     </Text>
                                 </View>
 
@@ -83,16 +103,9 @@ const Home = () => {
                     ListEmptyComponent={() => (
                         <Text>Empty State</Text>
                     )}
-                    //refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}
+                    refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}
                 />
-
-                <CustomButton
-                            title="Test out DB" 
-                            handlePress={testDB}
-                            containerStyles="mt-7" 
-                />
-
-            </SafeAreaView>*/
+            </SafeAreaView>
         )
     }
 }

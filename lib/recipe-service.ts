@@ -61,3 +61,41 @@ export const getRecipesByUser = async (creator: string) : Promise<Recipe | null>
         return null;
     }
 }
+
+export const getAllRecipes = async () : Promise<Recipe[] | null> => {
+    try {
+        const { data, error } = await client
+            .from("recipe")
+            .select()
+            .limit(10);
+
+        if (error) {
+            console.error("Error retrieving all recipes recipes: ", error);
+        }
+        
+        if (data) {
+            
+            let recipes: Recipe[] = [];
+            for (let i = 0; i < data.length; i++) {
+                let recipe: Recipe = {
+                    id: data[i].id,
+                    creator: data[i].creator,
+                    name: data[i].name,
+                    description: data[i].description,
+                    ingredients: data[i].ingredients
+                };
+                recipes.push(recipe);
+            }
+            
+            return recipes;
+        }
+
+        // Do something else for when no recipes for current user
+        throw new Error("No data found");
+    } catch (error) {
+        console.error(error);
+        Alert.alert("Error", "An error occurred. Please try again.");
+
+        return null;
+    }
+}

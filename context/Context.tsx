@@ -49,7 +49,7 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
                     setUser({
                         email: user.email,
                         username: user.username,
-                        userId: user.userId
+                        id: user.id
                     });
                 } else {
                     setIsLoggedIn(false);

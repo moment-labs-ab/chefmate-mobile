@@ -5,13 +5,17 @@ import React, { useState } from 'react'
 import { Link, router } from 'expo-router'
 import FormField from '@/components/FormField'
 import CustomButton from '@/components/CustomButtom'
-import { createUserWithEmail } from '@/lib/auth-service'
+import { createUserWithEmail, getCurrentUser } from '@/lib/auth-service'
+import { useGlobalContext } from '@/context/Context'
 
 const SignUp = () => {
+    const { setUser, setIsLoggedIn } = useGlobalContext();
+    
     const [form, setForm] = useState({
+        username: '',
         email: '',
         password: ''
-    })
+    });
 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -24,11 +28,19 @@ const SignUp = () => {
         setIsSubmitting(true);
 
         try {
-            const result = await createUserWithEmail(form.email, form.password);
-            //setUser(result);
-            //setIsLogged(true); 
+            const authResult = await createUserWithEmail(form.username, form.email, form.password);
 
-            router.replace('/home')
+            if (authResult) {
+            const result = await getCurrentUser();
+
+                if (result) {
+                    setUser(result);
+                    setIsLoggedIn(true);
+                    
+                    router.replace('/home')
+                }
+            }
+            
         } catch (error: any) {
             Alert.alert('Error', error.message);
         }
@@ -52,12 +64,12 @@ const SignUp = () => {
                         Sign up to ChefMate
                     </Text>
 
-                    {/*<FormField
+                    <FormField
                         title="Username"
                         value={form.username}
-                        handleChangeText={() => {}}
-                        otherStyles="mt-10"
-                    />*/}
+                        handleChangeText={(e) => setForm({...form, username: e})}
+                        otherStyles="mt-7"
+                    />
 
                     <FormField
                         title="Email"

@@ -45,7 +45,7 @@ const Create = () => {
   });
 
   const submit = async () => {
-    form.creator = user?.userId!;
+    form.creator = user?.id!;
     
     if (
       (form.name === "") ||
