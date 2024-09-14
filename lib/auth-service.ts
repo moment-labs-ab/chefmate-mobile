@@ -16,6 +16,19 @@ export async function signInUser(email: string, password: string) {
     }
 }
 
+export async function signOutUser() {
+    try {
+        const { error } = await client.auth.signOut();
+
+        if (error) {
+            console.error("Error signing out", error);
+        }
+    } catch (error) {
+        console.error(error);
+        Alert.alert("Error", "An error occurred. Please try again.");
+    }
+}
+
 export async function createUserWithEmail(username: string, email: string, password: string) {
     try {
         const { data, error } = await client.auth.signUp({
