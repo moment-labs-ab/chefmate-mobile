@@ -2,17 +2,26 @@ import { Alert } from "react-native";
 import { client } from "./database";
 import { User } from "@/models/user";
 
-export async function signInUser(email: string, password: string) {
+export async function signInUser(email: string, password: string): Promise<boolean> {
     try {
         const { data, error } = await client.auth.signInWithPassword({
             email: email,
             password: password,
         });
 
-        console.log(data, error);
+        if (error) {
+            return false
+        }
+        
+        if (data.user) {
+            return true;
+        }
+
+        return false;
     } catch (error) {
         console.error(error);
         Alert.alert("Error", "An error occurred. Please try again.");
+        return false;
     }
 }
 
