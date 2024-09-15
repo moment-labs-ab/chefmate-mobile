@@ -93,7 +93,7 @@ export async function getCurrentUser() {
     const { data, error } = await client.auth.getUser();
     
     if (error) {
-        console.error("No user found", error);
+        //console.error("No user found", error);
     } 
     
     if (data && data.user?.id != undefined) {

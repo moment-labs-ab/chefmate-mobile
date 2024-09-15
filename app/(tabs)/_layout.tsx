@@ -1,9 +1,10 @@
 import { View, Text, Image } from 'react-native'
 import React from 'react'
 import { Tabs, Redirect } from 'expo-router'
+import { icons } from '@/constants/Icons'
 
 type TabIconType = {
-    icon?: string,
+    icon: Object,
     color: string,
     name: string,
     focused: boolean
@@ -11,16 +12,17 @@ type TabIconType = {
 
 const TabIcon = ({icon, color, name, focused} : TabIconType) => {
     return (
-        <View className="items-center justify-center gap-2">
+        <View className="items-center justify-center">
             <Image
-               //source={icon}
+               source={icon}
                resizeMode='contain'
                tintColor={color}
                className="w-6 h-6" 
             />
-            <Text className={`${focused ? 'font-psemibold' : 'font-pregular'} text-xs`} style={{color: color}}>
+            
+            {/*<Text className={`${focused ? 'font-psemibold' : 'font-pregular'} text-xs`} style={{color: color}}>
                 {name}
-            </Text>
+            </Text>*/}
         </View>
     )
 }
@@ -48,7 +50,7 @@ const TabsLayout = () => {
                 headerShown: false,
                 tabBarIcon: ({color, focused}) => (
                     <TabIcon 
-                        //icon={icons.plus} 
+                        icon={icons.create} 
                         color={color} 
                         name="Create" 
                         focused={focused} 
@@ -64,7 +66,7 @@ const TabsLayout = () => {
                 headerShown: false,
                 tabBarIcon: ({color, focused}) => (
                     <TabIcon 
-                        //icon={icons.home} 
+                        icon={icons.cutlery} 
                         color={color} 
                         name="Home" 
                         focused={focused} 
@@ -79,7 +81,7 @@ const TabsLayout = () => {
                 headerShown: false,
                 tabBarIcon: ({color, focused}) => (
                     <TabIcon 
-                        //icon={icons.profile} 
+                        icon={icons.chefProfile} 
                         color={color} 
                         name="Profile" 
                         focused={focused} 
