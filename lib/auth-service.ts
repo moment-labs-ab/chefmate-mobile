@@ -119,7 +119,7 @@ export const getDatabaseUser = async (currentUser: string) : Promise<User | null
             }
             
             if (data) {
-                // Data from supabase comes back as a list of objectl
+                // Data from supabase comes back as a list of objects
                 let recipe: User = {
                     id: data[0].id,
                     username: data[0].username,
@@ -128,7 +128,7 @@ export const getDatabaseUser = async (currentUser: string) : Promise<User | null
                     email: data[0].email,
                     timeCreated: data[0].time_created,
                     timeUpdated: data[0].time_updated,
-                    avatar: data[0].avatar
+                    avatar: data[0].profile_pic
                 };
     
                 return recipe;
