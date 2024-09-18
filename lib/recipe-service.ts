@@ -1,9 +1,20 @@
 import { Recipe } from "@/models/recipeModels";
 import { Alert } from "react-native";
 import { client } from "./database";
+import { decode } from 'base64-arraybuffer'
+import * as FileSystem from 'expo-file-system';
 
-export const createRecipe = async (name: string, creator: string, description: string, ingredients: string) => {
+export const createRecipe = async (
+    name: string, 
+    creator: string, 
+    description: string, 
+    ingredients: string,
+    imageFileName: string
+    ): Promise<string | null> => {
+
     try {
+        
+        // change to a UID
         const num = Math.floor(Math.random() * 100000);
         
         const { data, error } = await client
@@ -14,17 +25,43 @@ export const createRecipe = async (name: string, creator: string, description: s
                 name: name,
                 description: description,
                 ingredients: ingredients,
+                image_filename: imageFileName
             })
             .select();
         
         if (error) {
             console.error(error);
             Alert.alert("Error", "Error inserting recipe. Please try again.");
+            return null;
         }
+        return num.toString();
 
     } catch (error) {
         console.error(error);
         Alert.alert("Error", "An error occurred. Please try again.");
+        return null;
+    }
+}
+
+export const uploadRecipeImage = async (userId: string, recipeId: string, imageFileName: string, imageUri: string) : Promise<boolean> => {
+    const base64Data = await FileSystem.readAsStringAsync(imageUri, {
+        encoding: FileSystem.EncodingType.Base64,
+    });
+
+    const ext = imageUri.substring(imageUri.lastIndexOf('.') + 1);
+
+    const { data, error } = await client.storage
+        .from('recipe-images')
+        .upload(`${userId}/${recipeId}/${imageFileName}`, decode(base64Data), {
+            contentType: `image/${ext}`,
+        });
+        
+    if (error) {
+        console.error("Upload Image error: ", error);
+        return false;
+    } else {
+        console.log(data);
+        return true;
     }
 }
 
