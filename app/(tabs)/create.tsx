@@ -8,6 +8,7 @@ import {
     Image,
     TouchableOpacity,
     ScrollView,
+    ActivityIndicator
 } from "react-native";
 
 import FormField from "@/components/FormField";
@@ -121,73 +122,83 @@ const Create = () => {
         }
     };
 
-    return (
-        <SafeAreaView className="bg-primary h-full">
-            <ScrollView className="px-4 my-6">
-                <Text className="text-2xl text-white font-psemibold">Create Recipe</Text>
-
-                <FormField
-                    title="Recipe Name"
-                    value={form.name}
-                    placeholder="Give your recipe a name..."
-                    handleChangeText={(e) => setForm({ ...form, name: e })}
-                    otherStyles="mt-10"
-                />
-
-                <View className="mt-7 space-y-2">
-                    <Text className="text-base text-gray-100 font-pmedium">
-                        Recipe Image
-                    </Text>
-
-                    <TouchableOpacity
-                        onPress={() => pickImage()}>
-                        {form.mainPicture ? (
-                            <Image
-                                source={{ uri: form.mainPicture }}
-                                resizeMode="cover"
-                                className="w-full h-64 rounded-2xl"
-                            />
-                        ) : (
-                            <View className="w-full h-16 px-4 bg-black-100 rounded-2xl border-2 border-black-200 flex justify-center items-center flex-row space-x-2">
+    if (uploading) {
+        return (
+            <SafeAreaView>
+                <ActivityIndicator size="large" color="#0000ff" />
+                <Text>Saving Recipe...</Text>
+            </SafeAreaView>
+        );
+    }
+    else {
+        return (
+            <SafeAreaView className="bg-primary h-full">
+                <ScrollView className="px-4 my-6">
+                    <Text className="text-2xl text-white font-psemibold">Create Recipe</Text>
+    
+                    <FormField
+                        title="Recipe Name"
+                        value={form.name}
+                        placeholder="Give your recipe a name..."
+                        handleChangeText={(e) => setForm({ ...form, name: e })}
+                        otherStyles="mt-10"
+                    />
+    
+                    <View className="mt-7 space-y-2">
+                        <Text className="text-base text-gray-100 font-pmedium">
+                            Recipe Image
+                        </Text>
+    
+                        <TouchableOpacity
+                            onPress={() => pickImage()}>
+                            {form.mainPicture ? (
                                 <Image
-                                    source={icons.upload}
-                                    resizeMode="contain"
-                                    alt="upload"
-                                    className="w-5 h-5"
+                                    source={{ uri: form.mainPicture }}
+                                    resizeMode="cover"
+                                    className="w-full h-64 rounded-2xl"
                                 />
-                                <Text className="text-sm text-gray-100 font-pmedium">
-                                    Choose an Image
-                                </Text>
-                            </View>
-                        )}
-                    </TouchableOpacity>
-                </View>
-
-                <FormField
-                    title="Description"
-                    value={form.description}
-                    placeholder="A quick synapses"
-                    handleChangeText={(e) => setForm({ ...form, description: e })}
-                    otherStyles="mt-7"
-                />
-
-                <FormField
-                    title="Ingredients"
-                    value={form.ingredients}
-                    placeholder="The essentials of your recipe"
-                    handleChangeText={(e) => setForm({ ...form, ingredients: e })}
-                    otherStyles="mt-7"
-                />
-
-                <CustomButton
-                    title="Submit & Publish"
-                    handlePress={submit}
-                    containerStyles="mt-7"
-                    isLoading={uploading}
-                />
-            </ScrollView>
-        </SafeAreaView>
-    );
+                            ) : (
+                                <View className="w-full h-16 px-4 bg-black-100 rounded-2xl border-2 border-black-200 flex justify-center items-center flex-row space-x-2">
+                                    <Image
+                                        source={icons.upload}
+                                        resizeMode="contain"
+                                        alt="upload"
+                                        className="w-5 h-5"
+                                    />
+                                    <Text className="text-sm text-gray-100 font-pmedium">
+                                        Choose an Image
+                                    </Text>
+                                </View>
+                            )}
+                        </TouchableOpacity>
+                    </View>
+    
+                    <FormField
+                        title="Description"
+                        value={form.description}
+                        placeholder="A quick synapses"
+                        handleChangeText={(e) => setForm({ ...form, description: e })}
+                        otherStyles="mt-7"
+                    />
+    
+                    <FormField
+                        title="Ingredients"
+                        value={form.ingredients}
+                        placeholder="The essentials of your recipe"
+                        handleChangeText={(e) => setForm({ ...form, ingredients: e })}
+                        otherStyles="mt-7"
+                    />
+    
+                    <CustomButton
+                        title="Submit & Publish"
+                        handlePress={submit}
+                        containerStyles="mt-7"
+                        isLoading={uploading}
+                    />
+                </ScrollView>
+            </SafeAreaView>
+        );
+    }
 };
 
 export default Create;
