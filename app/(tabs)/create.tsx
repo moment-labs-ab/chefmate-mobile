@@ -63,7 +63,6 @@ const Create = () => {
 
         if (!result.canceled) {
             setForm({ ...form, mainPictureUri: result.assets[0].uri });
-            console.log(result.assets[0].uri);
         }
     }
     
@@ -80,28 +79,22 @@ const Create = () => {
 
         setUploading(true);
         try {
+
             const recipeId = await createRecipe(
+                form.creator,
                 form.name,
                 form.description,
                 form.ingredients,
                 form.mainPictureUri
             );
-            
-            if (recipeId)
-            {
-                const imageUploadResult = await uploadRecipeImage(user?.id!, recipeId, form.mainPictureUri);
 
-                if (imageUploadResult) {
+            if (recipeId) {
 
-                    Alert.alert("Success", "Post uploaded successfully");
-                    router.push("/home");
-                }
-                else {
-                    Alert.alert("Error", "An error occured uploading recipe image");
-                }
+                Alert.alert("Success", "Post uploaded successfully");
+                router.push("/home");
             }
             else {
-                Alert.alert("Error", "An error occured uploading recipe. No string was returned");
+                Alert.alert("Error", "An error occured uploading recipe image");
             }
             
         } catch (error: any) {

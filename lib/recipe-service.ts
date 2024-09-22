@@ -3,14 +3,21 @@ import { Alert } from "react-native";
 import { client } from "./database";
 import { decode } from 'base64-arraybuffer'
 import * as FileSystem from 'expo-file-system';
+import { icons } from "@/constants/Icons";
+
+// Will need to update this with configuration.
+const imageUriBase = "https://zsjywcypeffudolbyeoh.supabase.co/storage/v1/object/public/recipe-images/"
 
 export const createRecipe = async (
+    creatorId: string,
     name: string, 
     description: string, 
     ingredients: string,
-    imageFileName: string
+    mainPictreUri: string
     ): Promise<string | null> => {
 
+    const pictureId = Date.now().toString();
+    
     try {
         const { data, error } = await client
             .from("recipe")
@@ -18,7 +25,8 @@ export const createRecipe = async (
                 name: name,
                 description: description,
                 ingredients: ingredients,
-                image_uri: imageFileName
+                image_uri: pictureId,
+                image_id: pictureId,
             })
             .select();
         
@@ -33,6 +41,13 @@ export const createRecipe = async (
             return null;
         }
 
+        let imageUploadResult = await uploadRecipeImage(creatorId, data[0].id, mainPictreUri, pictureId);
+
+        if (!imageUploadResult) {
+            Alert.alert("Error", "An error occurred uploading recipe image");
+            return null;
+        }
+
         return data[0].id;
     } catch (error) {
         console.error(error);
@@ -41,7 +56,7 @@ export const createRecipe = async (
     }
 }
 
-export const uploadRecipeImage = async (userId: string, recipeId: string, imageUri: string) : Promise<boolean> => {
+export const uploadRecipeImage = async (userId: string, recipeId: string, imageUri: string, pictureId: string) : Promise<boolean> => {
     const base64Data = await FileSystem.readAsStringAsync(imageUri, {
         encoding: FileSystem.EncodingType.Base64,
     });
@@ -50,7 +65,7 @@ export const uploadRecipeImage = async (userId: string, recipeId: string, imageU
 
     const { data, error } = await client.storage
         .from('recipe-images')
-        .upload(`${userId}/${recipeId}/${Date.now()}.${ext}`, decode(base64Data), {
+        .upload(`${userId}/${recipeId}/${pictureId}.${ext}`, decode(base64Data), {
             contentType: `image/${ext}`,
         });
         
@@ -76,12 +91,17 @@ export const getRecipesByUser = async (creator: string) : Promise<Recipe | null>
         
         if (data) {
             // Data from supabase comes back as a list of objectl
+            let creator = data[0].creator;
+            let recipeId = data[0].id;
+            let imageId = data[0].image_id;
+
             let recipe: Recipe = {
-                id: data[0].id,
-                creator: data[0].creator,
+                id: recipeId,
+                creator: creator,
                 name: data[0].name,
                 description: data[0].description,
-                ingredients: data[0].ingredients
+                ingredients: data[0].ingredients,
+                mainPictureUri: `${imageUriBase}/${creator}/${recipeId}/${imageId}`
             };
 
             return recipe;
@@ -99,6 +119,7 @@ export const getRecipesByUser = async (creator: string) : Promise<Recipe | null>
 
 export const getAllRecipes = async () : Promise<Recipe[] | null> => {
     try {
+        console.log("Getting all recipes");
         const { data, error } = await client
             .from("recipe")
             .select()
@@ -111,13 +132,27 @@ export const getAllRecipes = async () : Promise<Recipe[] | null> => {
         if (data) {
             
             let recipes: Recipe[] = [];
+            console.log("Retrieved recipes: ", data.length);
             for (let i = 0; i < data.length; i++) {
+                let creator = data[i].creator;
+                let recipeId = data[i].id;
+                let imageId = data[i].image_id;
+
+                let mainPictreUri = '';
+                
+                if (imageId === ''){
+                    mainPictreUri = ''
+                }
+                else {
+                    mainPictreUri = `${imageUriBase}/${creator}/${recipeId}/${imageId}.jpg`;
+                }
                 let recipe: Recipe = {
-                    id: data[i].id,
-                    creator: data[i].creator,
+                    id: recipeId,
+                    creator: creator,
                     name: data[i].name,
                     description: data[i].description,
-                    ingredients: data[i].ingredients
+                    ingredients: data[i].ingredients,
+                    mainPictureUri: mainPictreUri
                 };
                 recipes.push(recipe);
             }

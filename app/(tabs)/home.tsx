@@ -60,7 +60,7 @@ const Home = () => {
                                         avatar: ''
                                     }, 
                                     description: item.description, 
-                                    thumbnail: 'https://zsjywcypeffudolbyeoh.supabase.co/storage/v1/object/public/recipe-images/0eff318a-5331-47ed-8418-d04de931f5bc/ab85ff51-efe8-4884-9bf9-4f0bf64c22eb/1726795394769.jpg'
+                                    thumbnail: item.mainPictureUri || ''
                                 }
                             }
                             />
