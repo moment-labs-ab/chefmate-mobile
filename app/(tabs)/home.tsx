@@ -60,7 +60,7 @@ const Home = () => {
                                         avatar: ''
                                     }, 
                                     description: item.description, 
-                                    thumbnail: ''
+                                    thumbnail: 'https://zsjywcypeffudolbyeoh.supabase.co/storage/v1/object/public/recipe-images/0eff318a-5331-47ed-8418-d04de931f5bc/ab85ff51-efe8-4884-9bf9-4f0bf64c22eb/1726795394769.jpg'
                                 }
                             }
                             />
@@ -87,14 +87,14 @@ const Home = () => {
                             </View>
 
                             <SearchInput
-                                placeholder="Search for a video topic"
+                                placeholder="Search for a recipe"
                                 />
 
                             <View className="w-full flex-1 pt-5 pb-8">
                                 <Text className="text-gray-100 text-lg font-pregular mb-3">
-                                    Latest Videos
+                                    Latest RecipeZ
                                 </Text>
-                                <Trending/>
+                                {/*<Trending/>*/}
                             </View>
                         </View>
                     )}

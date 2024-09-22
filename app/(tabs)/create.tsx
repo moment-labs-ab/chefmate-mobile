@@ -27,8 +27,7 @@ const Create = () => {
         creator: "",
         description: "",
         ingredients: "",
-        mainPicture: "",
-        mainPictureName: "",
+        mainPictureUri: "",
         //instructions: "",
         //additionalTips: "",
         //category:""
@@ -63,7 +62,7 @@ const Create = () => {
         });
 
         if (!result.canceled) {
-            setForm({ ...form, mainPicture: result.assets[0].uri });
+            setForm({ ...form, mainPictureUri: result.assets[0].uri });
             console.log(result.assets[0].uri);
         }
     }
@@ -83,15 +82,14 @@ const Create = () => {
         try {
             const recipeId = await createRecipe(
                 form.name,
-                form.creator,
                 form.description,
                 form.ingredients,
-                form.mainPictureName
+                form.mainPictureUri
             );
             
             if (recipeId)
             {
-                const imageUploadResult = await uploadRecipeImage(form.creator, recipeId, form.mainPictureName, form.mainPicture);
+                const imageUploadResult = await uploadRecipeImage(user?.id!, recipeId, form.mainPictureUri);
 
                 if (imageUploadResult) {
 
@@ -114,8 +112,7 @@ const Create = () => {
                 creator: "",
                 description: "",
                 ingredients: "",
-                mainPicture: "",
-                mainPictureName: "",
+                mainPictureUri: "",
             });
 
             setUploading(false);
@@ -151,9 +148,9 @@ const Create = () => {
     
                         <TouchableOpacity
                             onPress={() => pickImage()}>
-                            {form.mainPicture ? (
+                            {form.mainPictureUri ? (
                                 <Image
-                                    source={{ uri: form.mainPicture }}
+                                    source={{ uri: form.mainPictureUri }}
                                     resizeMode="cover"
                                     className="w-full h-64 rounded-2xl"
                                 />
