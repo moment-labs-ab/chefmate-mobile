@@ -4,8 +4,6 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import RecipeCard from '@/components/RecipeCard'
 import SearchInput from '@/components/SearchInput'
 import Trending from '@/components/Trending'
-import CustomButton from '@/components/CustomButtom'
-import useDatabase from '@/lib/useDatabase'
 import { Recipe } from '@/models/recipeModels'
 import { getAllRecipes, getRecipesByUser } from '@/lib/recipe-service'
 import { useGlobalContext } from '@/context/Context'
@@ -62,7 +60,7 @@ const Home = () => {
                                         avatar: ''
                                     }, 
                                     description: item.description, 
-                                    thumbnail: ''
+                                    thumbnail: item.mainPictureUri || ''
                                 }
                             }
                             />
@@ -89,14 +87,14 @@ const Home = () => {
                             </View>
 
                             <SearchInput
-                                placeholder="Search for a video topic"
+                                placeholder="Search for a recipe"
                                 />
 
                             <View className="w-full flex-1 pt-5 pb-8">
                                 <Text className="text-gray-100 text-lg font-pregular mb-3">
-                                    Latest Videos
+                                    Latest RecipeZ
                                 </Text>
-                                <Trending/>
+                                {/*<Trending/>*/}
                             </View>
                         </View>
                     )}

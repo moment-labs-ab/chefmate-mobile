@@ -4,4 +4,5 @@ export type Recipe = {
     creator: string,
     description: string,
     ingredients: string,
+    mainPictureUri?: string,
 }

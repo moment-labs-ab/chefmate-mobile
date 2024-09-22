@@ -46,19 +46,12 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
                 
                 if (user) {
                     setIsLoggedIn(true);
-                    setUser({
-                        email: user.email,
-                        username: user.username,
-                        id: user.id
-                    });
+                    setUser(user);
+                    console.log("Context.tsx (50): USER:", user);
                 } else {
                     setIsLoggedIn(false);
                     setUser(null);
                 }
-
-                console.log("Logged IN:", isLoggedIn);
-                console.log("USER:", user);
-                console.log("IsLOADING:", isLoading);
             } catch (error) {
                 console.error(error);
                 return null;
