@@ -1,9 +1,11 @@
-import { View, Text, Image, TouchableOpacity, TurboModuleRegistry } from 'react-native'
-import { useState } from 'react'
+import { View, Text, Image, TouchableOpacity, TurboModuleRegistry, Alert } from 'react-native'
 import { icons } from '@/constants/Icons'
+import { useState } from 'react'
+import { deleteRecipe } from '@/lib/recipe-service'
 
 type RecipeCardProps = {
     recipe: {
+        recipeId: string,
         name: string,
         description: string,
         thumbnail: string,
@@ -12,9 +14,46 @@ type RecipeCardProps = {
             avatar: string
         }
     }
+    currentUserId: string
 }
 
-const RecipeCard = ({ recipe: { name, description, thumbnail, creator: { username, avatar }} } : RecipeCardProps) => {
+const RecipeCard = ({ 
+    recipe: { 
+        recipeId,
+        name, 
+        description, 
+        thumbnail, 
+        creator: { 
+            username, 
+            avatar 
+        }
+    },
+    currentUserId
+} : RecipeCardProps) => {
+    const sameUser = currentUserId === username;
+    const [menuIsVisible, setMenuIsVisible] = useState(sameUser);
+
+    const createThreeButtonAlert = () => {
+        Alert.alert('Edit or Delete Recipe', undefined, [
+          {
+            text: 'Edit',
+            onPress: async () => {},
+          },
+          {
+            text: 'Delete', 
+            onPress: async () => {
+                await deleteRecipe(recipeId);
+            },
+            style: 'destructive'
+          },
+          {
+            text: 'Cancel',
+            onPress: () => console.log('Cancel Pressed'),
+            style: 'cancel',
+          },
+        ]);
+    }
+
     return (
     <View className="flex flex-col items-center px-4 mb-14">
       <View className="flex flex-row gap-3 items-start">
@@ -50,9 +89,11 @@ const RecipeCard = ({ recipe: { name, description, thumbnail, creator: { usernam
           </View>
         </View>
 
-        <View className="pt-2">
-          <Image source={undefined} className="w-5 h-5 border border-secondary" resizeMode="contain" />
-        </View>
+        {menuIsVisible && <View className="pt-2" >
+            <TouchableOpacity onPress={createThreeButtonAlert}>
+                <Image source={icons.menu} className="w-5 h-5" resizeMode="contain" />
+            </TouchableOpacity>          
+        </View>}
       </View>
     </View>
   )

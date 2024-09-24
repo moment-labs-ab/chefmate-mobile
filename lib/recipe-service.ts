@@ -169,3 +169,32 @@ export const getAllRecipes = async () : Promise<Recipe[] | null> => {
         return null;
     }
 }
+
+export const deleteRecipe = async (recipeId: string) : Promise<boolean> => {
+    try {
+        const { data, error } = await client
+            .from("recipe")
+            .delete()
+            .eq("id", recipeId);
+
+        
+        if (!data && !error) {
+            Alert.alert("Recipe Deleted!", "Recipe Deleted Successfully");
+            return true;
+        }
+
+        if (error) {
+            console.error("Error deleting recipe: ", error);
+            return false;
+        }
+
+        console.log("Something else went wrongs");
+        return false;
+    }
+    catch (error) {
+        console.error(error);
+        Alert.alert("Error", "An error occurred. Please try again.");
+
+        return false;
+    }
+}
