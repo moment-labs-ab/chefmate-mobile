@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { router } from "expo-router";
+import { useEffect, useState } from "react";
+import { router, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
     View,
@@ -14,20 +14,27 @@ import {
 import FormField from "@/components/FormField";
 import CustomButton from "@/components/CustomButtom";
 import { useGlobalContext } from "@/context/Context";
-import { createRecipe  } from "@/lib/recipe-service";
+import { updateRecipe } from "@/lib/recipe-service";
 import { icons } from "@/constants/Icons";
 import * as ImagePicker from 'expo-image-picker';
+import { Recipe } from "@/models/recipeModels";
 
-const Create = () => {
+const Update = () => {
     const { user } = useGlobalContext();
 
+    const { recipeData } = useLocalSearchParams();
+    const recipe = JSON.parse(recipeData as string) as Recipe;
+
     const [uploading, setUploading] = useState(false);
+    const [isNewPicture, setIsNewPicture] = useState(false);
+
     const [form, setForm] = useState({
-        name: "",
-        creator: "",
-        description: "",
-        ingredients: "",
-        mainPictureUri: "",
+        id: recipe.id ?? "",
+        name: recipe.name ?? "",
+        creator: recipe.creator ?? "",
+        description: recipe.description ?? "",
+        ingredients: recipe.ingredients ?? "",
+        mainPictureUri: recipe.mainPictureUri ?? "",
         //instructions: "",
         //additionalTips: "",
         //category:""
@@ -47,6 +54,10 @@ const Create = () => {
         //comments
     });
 
+    /*useEffect(() => {
+        console.log(form);
+    }, [recipe]); */
+
     const pickImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status !== 'granted') {
@@ -63,6 +74,7 @@ const Create = () => {
 
         if (!result.canceled) {
             setForm({ ...form, mainPictureUri: result.assets[0].uri });
+            setIsNewPicture(true);
         }
     }
     
@@ -79,26 +91,37 @@ const Create = () => {
 
         setUploading(true);
         try {
-            const recipeId = await createRecipe(
+            let uri = '';
+            if (isNewPicture) {
+                uri = form.mainPictureUri;
+            }
+            
+            const recipeId = await updateRecipe(
+                form.id,
                 form.creator,
                 form.name,
                 form.description,
                 form.ingredients,
-                form.mainPictureUri
+                uri,
+                isNewPicture
             );
 
             if (recipeId) {
 
-                Alert.alert("Success", "Post uploaded successfully");
-                router.push("/home");
+                Alert.alert("Success", "Post updated successfully");
+                
+                if (router.canGoBack()) {
+                    router.back();
+                }
             }
             else {
-                Alert.alert("Error", "An error occured uploading recipe image");
+                Alert.alert("Error", "An error occured updating recipe image");
             }
         } catch (error: any) {
             Alert.alert("Error", error.message);
         } finally {
             setForm({
+                id: "",
                 name: "",
                 creator: "",
                 description: "",
@@ -110,11 +133,17 @@ const Create = () => {
         }
     };
 
+    const cancel = () => {
+        if (router.canGoBack()) {
+            router.back();
+        }
+    }
+
     if (uploading) {
         return (
             <SafeAreaView>
                 <ActivityIndicator size="large" color="#0000ff" />
-                <Text>Saving Recipe...</Text>
+                <Text>Updating Recipe...</Text>
             </SafeAreaView>
         );
     }
@@ -122,7 +151,7 @@ const Create = () => {
         return (
             <SafeAreaView className="bg-primary h-full">
                 <ScrollView className="px-4 my-6">
-                    <Text className="text-2xl text-white font-psemibold">Create Recipe</Text>
+                    <Text className="text-2xl text-white font-psemibold">Update Recipe</Text>
                     
                     <FormField
                         title="Recipe Name"
@@ -178,10 +207,16 @@ const Create = () => {
                     />
     
                     <CustomButton
-                        title="Submit & Publish"
+                        title="Update Recipe"
                         handlePress={submit}
                         containerStyles="mt-7"
                         isLoading={uploading}
+                    />
+                    <CustomButton
+                        title="Cancel"
+                        handlePress={cancel}
+                        containerStyles="mt-7"
+                        isLoading={false}
                     />
                 </ScrollView>
             </SafeAreaView>
@@ -189,4 +224,4 @@ const Create = () => {
     }
 };
 
-export default Create;
+export default Update;

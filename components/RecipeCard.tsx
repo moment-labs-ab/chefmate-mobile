@@ -2,6 +2,8 @@ import { View, Text, Image, TouchableOpacity, TurboModuleRegistry, Alert } from 
 import { icons } from '@/constants/Icons'
 import { useState } from 'react'
 import { deleteRecipe } from '@/lib/recipe-service'
+import { useRouter } from 'expo-router'
+import { Recipe } from '@/models/recipeModels'
 
 type RecipeCardProps = {
     recipe: {
@@ -30,14 +32,38 @@ const RecipeCard = ({
     },
     currentUserId
 } : RecipeCardProps) => {
+    const router = useRouter();
+
     const sameUser = currentUserId === username;
     const [menuIsVisible, setMenuIsVisible] = useState(sameUser);
+    const [recipe, setRecipe] = useState({
+        recipeId,
+        name,
+        description,
+        thumbnail,
+        username,
+        avatar
+    })
 
     const createThreeButtonAlert = () => {
         Alert.alert('Edit or Delete Recipe', undefined, [
           {
             text: 'Edit',
-            onPress: async () => {},
+            onPress: () => {
+                const updateRecipe: Recipe = {
+                    id: recipeId,
+                    name,
+                    description,
+                    creator: username,
+                    ingredients: '',
+                    mainPictureUri: thumbnail
+                }
+
+                router.push({
+                    pathname: "/screens/update",
+                    params: { recipeData: JSON.stringify(updateRecipe) }
+                });
+            },
           },
           {
             text: 'Delete', 

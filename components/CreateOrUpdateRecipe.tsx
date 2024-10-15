@@ -14,13 +14,18 @@ import {
 import FormField from "@/components/FormField";
 import CustomButton from "@/components/CustomButtom";
 import { useGlobalContext } from "@/context/Context";
-import { createRecipe  } from "@/lib/recipe-service";
+import { createRecipe, updateRecipe, uploadRecipeImage } from "@/lib/recipe-service";
 import { icons } from "@/constants/Icons";
 import * as ImagePicker from 'expo-image-picker';
 
-const Create = () => {
+type CreateOrUpdateProps = {
+    isUpdateScreen: boolean | null;
+}
+
+const CreateOrUpdate = ({isUpdateScreen = true}: CreateOrUpdateProps) => {
     const { user } = useGlobalContext();
 
+    const [isUpdate, setIsUpdate] = useState(isUpdateScreen);
     const [uploading, setUploading] = useState(false);
     const [form, setForm] = useState({
         name: "",
@@ -79,27 +84,47 @@ const Create = () => {
 
         setUploading(true);
         try {
-            const recipeId = await createRecipe(
-                form.creator,
-                form.name,
-                form.description,
-                form.ingredients,
-                form.mainPictureUri
-            );
-
-            if (recipeId) {
-
-                Alert.alert("Success", "Post uploaded successfully");
-                router.push("/home");
+            if (isUpdate) {
+                const recipeId = await updateRecipe(
+                    form.creator,
+                    form.name,
+                    form.description,
+                    form.ingredients,
+                    form.mainPictureUri
+                );
+    
+                if (recipeId) {
+    
+                    Alert.alert("Success", "Post updated successfully");
+                    router.push("/home");
+                }
+                else {
+                    Alert.alert("Error", "An error occured updating recipe image");
+                }
             }
             else {
-                Alert.alert("Error", "An error occured uploading recipe image");
+                const recipeId = await createRecipe(
+                    form.creator,
+                    form.name,
+                    form.description,
+                    form.ingredients,
+                    form.mainPictureUri
+                );
+    
+                if (recipeId) {
+    
+                    Alert.alert("Success", "Post uploaded successfully");
+                    router.push("/home");
+                }
+                else {
+                    Alert.alert("Error", "An error occured uploading recipe image");
+                }
             }
         } catch (error: any) {
             Alert.alert("Error", error.message);
         } finally {
             setForm({
-                name: "",
+                name: form.name,
                 creator: "",
                 description: "",
                 ingredients: "",
@@ -122,7 +147,10 @@ const Create = () => {
         return (
             <SafeAreaView className="bg-primary h-full">
                 <ScrollView className="px-4 my-6">
-                    <Text className="text-2xl text-white font-psemibold">Create Recipe</Text>
+                    { isUpdate ?  
+                        <Text className="text-2xl text-white font-psemibold">Update Recipe</Text> : 
+                        <Text className="text-2xl text-white font-psemibold">Create Recipe</Text>
+                    }
                     
                     <FormField
                         title="Recipe Name"
@@ -189,4 +217,4 @@ const Create = () => {
     }
 };
 
-export default Create;
+export default CreateOrUpdate;
