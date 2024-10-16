@@ -5,4 +5,5 @@ export const icons = {
     cutlery: require('@/assets/icons/cutlery.png'),
     upload: require('@/assets/icons/upload.png'),
     noImage: require('@/assets/icons/noImage.png'),
+    menu: require('@/assets/icons/menu.png'),
 };

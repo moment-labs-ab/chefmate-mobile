@@ -53,7 +53,8 @@ const Home = () => {
                     renderItem={({ item }: ListRenderItemInfo<Recipe>) => (
                         <RecipeCard
                             recipe={
-                                {   name: item.name, 
+                                {   recipeId: item.id,
+                                    name: item.name, 
                                     creator: {
                                         username: 
                                         item.creator, 
@@ -63,6 +64,7 @@ const Home = () => {
                                     thumbnail: item.mainPictureUri || ''
                                 }
                             }
+                            currentUserId={user?.id!}
                             />
                     )}
                     ListHeaderComponent={() => (

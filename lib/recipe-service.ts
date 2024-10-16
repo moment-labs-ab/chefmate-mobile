@@ -56,6 +56,60 @@ export const createRecipe = async (
     }
 }
 
+export const updateRecipe = async (
+    recipeId: string,
+    creatorId: string,
+    name: string, 
+    description: string, 
+    ingredients: string,
+    mainPictreUri: string,
+    pictureUpdate: boolean
+    ): Promise<string | null> => {
+
+    const pictureId = Date.now().toString();
+    
+    try {
+        const { data, error } = await client
+            .from("recipe")
+            .upsert({ 
+                id: recipeId,
+                name: name,
+                description: description,
+                ingredients: ingredients,
+                image_uri: pictureId,
+                image_id: pictureId,
+            })
+            .select();
+        
+        if (error) {
+            console.error(error);
+            Alert.alert("Error", "Error updating recipe. Please try again.");
+            return null;
+        }
+
+        if (!data) {
+            console.error("No data returned from update");
+            return null;
+        }
+
+        /*if (pictureUpdate) {
+            // Something not working here!!!
+            let imageUploadResult = await uploadRecipeImage(creatorId, data[0].id, mainPictreUri, pictureId);
+
+            if (!imageUploadResult) {
+                Alert.alert("Error", "An error occurred uploading recipe image on update");
+                return null;
+            }
+        }*/
+
+        return data[0].id;
+    } catch (error) {
+        console.error(error);
+        Alert.alert("Error", "An error occurred. Please try again.");
+        return null;
+    }
+}
+
 export const uploadRecipeImage = async (userId: string, recipeId: string, imageUri: string, pictureId: string) : Promise<boolean> => {
     const base64Data = await FileSystem.readAsStringAsync(imageUri, {
         encoding: FileSystem.EncodingType.Base64,
@@ -167,5 +221,34 @@ export const getAllRecipes = async () : Promise<Recipe[] | null> => {
         Alert.alert("Error", "An error occurred. Please try again.");
 
         return null;
+    }
+}
+
+export const deleteRecipe = async (recipeId: string) : Promise<boolean> => {
+    try {
+        const { data, error } = await client
+            .from("recipe")
+            .delete()
+            .eq("id", recipeId);
+
+        
+        if (!data && !error) {
+            Alert.alert("Recipe Deleted!", "Recipe Deleted Successfully");
+            return true;
+        }
+
+        if (error) {
+            console.error("Error deleting recipe: ", error);
+            return false;
+        }
+
+        console.log("Something else went wrongs");
+        return false;
+    }
+    catch (error) {
+        console.error(error);
+        Alert.alert("Error", "An error occurred. Please try again.");
+
+        return false;
     }
 }
